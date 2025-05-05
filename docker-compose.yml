@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: atul
+      POSTGRES_PASSWORD: pass1
+      POSTGRES_DB: postgres
+    volumes:
+      - ./postgreSQL/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  my-microservice:
+    build: ./microservice
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: atul
+      DB_PASSWORD: pass1
+      DB_NAME: postgres
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3000"
+
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    ports:
+      - "9042:9042"    # Cassandra CQL port
+      - "9160:9160"    # Thrift service (optional, often not used in modern setups)
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_NUM_TOKENS=256
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    networks:
+      - cassandra_net
+
+volumes:
+  cassandra_data:
+
+networks:
+  cassandra_net:

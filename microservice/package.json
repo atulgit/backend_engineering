@@ -1,0 +1,14 @@
+{
+    "name": "my-microservice",
+    "version": "1.0.0",
+    "description": "A simple Node.js microservice",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "dotenv": "^16.5.0",
+        "express": "^4.18.4",
+        "pg": "^8.15.6"
+    }
+}

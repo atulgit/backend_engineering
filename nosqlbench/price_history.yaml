@@ -1,0 +1,20 @@
+description: Load sample data into existing table ecommerce.product_views_by_user
+
+scenarios:
+  default:
+    main: run driver=cql tags=phase:insert cycles=100000
+
+bindings:
+  product_id: Uuid()
+  recorded_at: DateTime('2023-01-01T00:00:00Z..2023-12-31T23:59:59Z')
+  price: Double(10.0..1000.0)
+  currency: StringList('USD')
+
+statements:
+  insert:
+    tags:
+      phase: insert
+    stmt: |
+      INSERT INTO ecommerce.product_views_by_user
+      (product_id, recorded_at, price, currency)
+      VALUES (<<product_id>>, <<recorded_at>>, '<<price>>', '<<currency>>')
