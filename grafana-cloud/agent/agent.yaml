@@ -1,0 +1,16 @@
+server:
+  log_level: info
+
+metrics:
+  global:
+    scrape_interval: 15s
+  configs:
+    - name: default
+      scrape_configs:
+        - job_name: 'cassandra'
+          static_configs:
+            - targets: ['cassandra:8080']
+      remote_write:
+        - url: https://prometheus-blocks-prod-us-central1.grafana.net/api/prom/push
+          headers:
+            Authorization: Bearer glc_eyJvIjoiMTQxOTkzOCIsIm4iOiJzdGFjay0xMjQ2NDk2LWFsbG95LWNhc3MiLCJrIjoiaDFEM2swc2M1VUw1MHd1TzZ1RTBpMDVPIiwibSI6eyJyIjoicHJvZC1hcC1zb3V0aC0xIn19

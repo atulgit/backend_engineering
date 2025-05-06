@@ -1,0 +1,8 @@
+startDelaySeconds: 0
+hostPort: 127.0.0.1:7199
+username: ''
+password: ''
+rules:
+  - pattern: 'org.apache.cassandra.metrics<type=(\w+), name=(\w+)><>Value'
+    name: cassandra_$1_$2
+    type: GAUGE

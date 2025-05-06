@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra
+    environment:
+      - JVM_EXTRA_OPTS=-javaagent:/opt/jmx-exporter/jmx_prometheus_javaagent.jar=8080:/opt/jmx-exporter/config.yaml
+    volumes:
+      - ./jmx:/opt/jmx-exporter
+    ports:
+      - "9042:9042"      # Cassandra CQL port
+      - "8080:8080"      # JMX Exporter HTTP port
+
+  grafana-agent:
+    image: grafana/agent:latest
+    container_name: grafana-agent
+    depends_on:
+      - cassandra
+    volumes:
+      - ./agent/agent.yaml:/etc/agent/agent.yaml
+    command: ["-config.file=/etc/agent/agent.yaml"]
