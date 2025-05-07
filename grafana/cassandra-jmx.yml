@@ -1,16 +1,10 @@
 startDelaySeconds: 0
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
 
 rules:
-  - pattern: 'org.apache.cassandra.metrics<type=(\w+), name=(\w+)><>Value'
-    name: cassandra_$1_$2
-    type: GAUGE
-    labels:
-      cluster: cassandra
+  - pattern: 'org.apache.cassandra.metrics<type=ClientRequest, name=Latency>'
+    name: cassandra_clientrequest_latency
 
-  - pattern: 'org.apache.cassandra.metrics<type=(\w+), keyspace=(\w+), scope=(\w+), name=(\w+)><>Value'
-    name: cassandra_$1_$4
-    type: GAUGE
-    labels:
-      keyspace: "$2"
-      table: "$3"
-
+  - pattern: 'org.apache.cassandra.metrics<type=Table, name=ReadLatency>'
+    name: cassandra_table_read_latency
