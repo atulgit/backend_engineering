@@ -4,5 +4,5 @@ global:
 scrape_configs:
   - job_name: 'cassandra'
     static_configs:
-      - targets: ['cassandra:7199']  # Cassandra JMX metrics
+      - targets: ['cassandra:7070']  # Cassandra JMX metrics
     metrics_path: /metrics  # Expose the Prometheus-compatible metrics

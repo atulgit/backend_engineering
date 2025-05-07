@@ -1,6 +1,16 @@
----
 startDelaySeconds: 0
-lowercaseOutputName: true
-lowercaseOutputLabelNames: true
-whitelistObjectNames:
-  - "org.apache.cassandra.metrics:*"
+
+rules:
+  - pattern: 'org.apache.cassandra.metrics<type=(\w+), name=(\w+)><>Value'
+    name: cassandra_$1_$2
+    type: GAUGE
+    labels:
+      cluster: cassandra
+
+  - pattern: 'org.apache.cassandra.metrics<type=(\w+), keyspace=(\w+), scope=(\w+), name=(\w+)><>Value'
+    name: cassandra_$1_$4
+    type: GAUGE
+    labels:
+      keyspace: "$2"
+      table: "$3"
+
