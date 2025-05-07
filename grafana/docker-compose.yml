@@ -4,12 +4,22 @@ services:
   cassandra:
     image: cassandra:latest
     container_name: cassandra
+    # user: cassandra  # Add this line to run as cassandra user
     environment:
       - CASSANDRA_CLUSTER_NAME=cassandra-cluster
       - CASSANDRA_DC=dc1
       - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_NUM_TOKENS=256
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_PASSWORD_SEEDER=yes
     ports:
       - "9042:9042"
+      - "7199:7199"  # JMX metrics port
+    volumes:
+      - ./cassandra-jmx.yml:/etc/cassandra/jmx_exporter.yml  # Mount JMX config
+    command: >
+      bash -c "exec cassandra -f -R -Dcassandra.jmx.remote.port=7199 -Dcassandra.jmx.remote.authenticate=false -Dcassandra.jmx.remote.ssl=false"
     networks:
       - monitoring
 
