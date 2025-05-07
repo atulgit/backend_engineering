@@ -19,7 +19,7 @@ services:
     volumes:
       - ./cassandra-jmx.yml:/etc/cassandra/jmx_exporter.yml  # Mount JMX config
     command: >
-      bash -c "exec cassandra -f -R -Dcassandra.jmx.remote.port=7199 -Dcassandra.jmx.remote.authenticate=false -Dcassandra.jmx.remote.ssl=false"
+      cassandra -f -R -Dcassandra.jmx.remote.port=7199 -Dcassandra.jmx.remote.authenticate=false -Dcassandra.jmx.remote.ssl=false
     networks:
       - monitoring
 
