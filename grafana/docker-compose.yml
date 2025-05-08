@@ -24,6 +24,19 @@ services:
     networks:
       - monitoring
 
+  nosqlbench:
+    image: nosqlbench/nosqlbench:latest
+    container_name: nosqlbench
+    environment:
+      - PATH=/opt/nb5:$PATH
+    volumes:
+      - ./test-plans:/test-plans
+    entrypoint: [ "tail", "-f", "/dev/null" ] # Keep container running so you can exec into it
+    depends_on:
+      - cassandra
+    networks:
+      - monitoring
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
