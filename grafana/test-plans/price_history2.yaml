@@ -1,0 +1,63 @@
+description: "Insert workload for Cassandra using NoSQLBench"
+
+scenarios:
+  default:
+    insert: run driver=cql tags==phase:insert
+
+bindings:
+  id: Mod(10000000)
+
+ops:
+  insert:
+    stmt:
+      "INSERT INTO ecommerce.product_views_by_user (id) VALUES (:id)"
+    params: 
+      id: 0
+
+
+# name: Cassandra Insert Workload
+
+# ops:
+#   - op: insert
+#     target:
+#       cassandra:
+#         contactPoints: "127.0.0.1"
+#         port: 9042
+#         keyspace: ecommerce
+#         consistency: ONE
+#     table: product_views_by_user
+#     columns:
+#       id: uuid
+#     values:
+#       id: random.uuid()
+
+# rate:
+#   - duration: 1m
+#     rate: 1000
+
+
+# version: 5.0
+
+# name: Cassandra Insert Workload
+
+# target:
+#   cassandra:
+#     contactPoints: "127.0.0.1"    # Cassandra cluster contact point(s)
+#     port: 9042                   # Cassandra port (default)
+#     keyspace: ecommerce        # Cassandra keyspace
+#     consistency: ONE             # Consistency level for the operations
+
+# workload:
+#   operations:
+#     - insert:
+#         table: product_views_by_user          # Table name
+#         columns:
+#           - id: 
+#               type: uuid        # UUID type for the id column
+#         values:
+#           - id: random.uuid()    # Generate a random UUID for each insert
+
+#   phase:
+#     - duration: 1m               # Duration for this phase (e.g., 1 minute)
+#       rate: 1000                  # Rate of operations per second (1000 inserts per second)
+#       operation: insert

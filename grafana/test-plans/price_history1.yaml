@@ -1,0 +1,15 @@
+scenarios:
+  default:
+    main: run driver=cql tags=phase:insert cycles=100000
+
+bindings:
+  product_id: ToUUID()
+
+stmt:
+  insert:
+    tags:
+      phase: insert
+    cql:
+      INSERT INTO ecommerce.product_views_by_user
+      (product_id)
+      VALUES ({product_id})
