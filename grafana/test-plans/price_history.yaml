@@ -1,15 +1,16 @@
-# scenarios:
-#   default:
-#     insert: run driver=cql tags==phase:insert
+scenarios:
+  default:
+    insert: run driver=cql tags==phase:insert
 
 bindings:
   id: ToUUID()  # Manually generated UUID for testing
+  name: Combinations('0-9A-F;0-9;A-Z;_;p;r;o;')
 
 ops:
   - name: insert
     tags:
       phase: insert
     stmt: >
-      INSERT INTO ecommerce.product_views_by_user (id) 
-      VALUES ({id});
+      INSERT INTO ecommerce.product_views_by_user (id, name) 
+      VALUES ({id}, {name});
     log: debug  # Enable debug logging to check the generated id

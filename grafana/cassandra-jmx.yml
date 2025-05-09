@@ -3,12 +3,18 @@ lowercaseOutputName: true
 lowercaseOutputLabelNames: true
 
 rules:
+  - pattern: 'org.apache.cassandra.db<type=Table,Keyspace=(.*),Table=(.*)>/WriteLatency'
+    name: cassandra_write_latency_seconds
+    labels:
+      keyspace: "$1"
+      table: "$2"
+    type: GAUGE
   - pattern: 'org.apache.cassandra.metrics<type=(\w+), name=(\w+)>'
-  # - pattern: 'org.apache.cassandra.metrics<type=ClientRequest, name=Latency>'
-  #   name: cassandra_clientrequest_latency
+  - pattern: 'org.apache.cassandra.metrics<type=ClientRequest, name=Latency>'
+    name: cassandra_clientrequest_latency
 
-  # - pattern: 'org.apache.cassandra.metrics<type=Table, name=ReadLatency>'
-  #   name: cassandra_table_read_latency
+  - pattern: 'org.apache.cassandra.metrics<type=Table, name=ReadLatency>'
+    name: cassandra_table_read_latency
 
-  # - pattern: 'org.apache.cassandra.metrics<type=Table, name=WriteLatency>'
-  #   name: cassandra_table_write_latency
+  - pattern: 'org.apache.cassandra.metrics<type=Table, name=WriteLatency>'
+    name: cassandra_table_write_latency
