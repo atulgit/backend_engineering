@@ -19,13 +19,18 @@ https://www.alibabacloud.com/blog/observability-%7C-best-practices-for-using-pro
 
 Query to insert Data
 --------------------
-CREATE TABLE "product_views_by_user" ( 
-  "product_id" UUID ,
-  "recorded_at" TIMESTAMP ,
-  "price" DOUBLE ,
-  "currency" TEXT ,
-   PRIMARY KEY ("product_id")
+
+CREATE KEYSPACE IF NOT EXISTS ecommerce
+WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+CREATE TABLE IF NOT EXISTS ecommerce.product_views_by_user (
+    id UUID PRIMARY KEY,
+    name text
 );
 
-INSERT INTO ecommerce.product_views_by_user (id, name)
-VALUES (uuid(), 'AAPL');
+-----------------------------
+drop table ecommerce.product_views_by_user;
+
+Grafana Config
+--------------
+http://prometheus:9090
