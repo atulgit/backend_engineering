@@ -61,6 +61,35 @@ services:
     networks:
       - monitoring
 
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - monitoring
+
+  # mongodb_exporter:
+  #   image: percona/mongodb_exporter:0.40
+  #   container_name: mongodb_exporter
+  #   restart: always
+  #   ports:
+  #     - "9216:9216"
+  #   environment:
+  #     MONGODB_URI: "mongodb://admin:secret@mongodb:27017"
+  #   depends_on:
+  #     - mongodb
+  #   networks:
+  #     - monitoring
+
 networks:
   monitoring:
     driver: bridge
+volumes:
+  mongodb_data: {}
