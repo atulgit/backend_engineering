@@ -6,3 +6,7 @@ scrape_configs:
     static_configs:
       - targets: ['cassandra:7070']  # Cassandra JMX metrics
     metrics_path: /metrics  # Expose the Prometheus-compatible metrics
+    
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb_exporter:9216']

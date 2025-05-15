@@ -75,21 +75,37 @@ services:
     networks:
       - monitoring
 
-  # mongodb_exporter:
-  #   image: percona/mongodb_exporter:0.40
-  #   container_name: mongodb_exporter
-  #   restart: always
-  #   ports:
-  #     - "9216:9216"
-  #   environment:
-  #     MONGODB_URI: "mongodb://admin:secret@mongodb:27017"
-  #   depends_on:
-  #     - mongodb
-  #   networks:
-  #     - monitoring
+  mongodb_exporter:
+    image: percona/mongodb_exporter:0.40
+    container_name: mongodb_exporter
+    restart: always
+    ports:
+      - "9216:9216"
+    environment:
+      MONGODB_URI: "mongodb://admin:pass@mongodb:27017/admin?authSource=admin"
+    depends_on:
+      - mongodb
+    networks:
+      - monitoring
+
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: atul
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: ecommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - monitoring
 
 networks:
   monitoring:
     driver: bridge
 volumes:
   mongodb_data: {}
+  pgdata:
