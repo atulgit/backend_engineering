@@ -1,0 +1,66 @@
+alertmanager:
+  enabled: false
+
+server:
+  enabled: true
+
+  # Expose Prometheus using LoadBalancer service
+  service:
+    type: LoadBalancer
+    port: 9090
+
+  # Persistence settings
+  persistence:
+    enabled: true
+    storageClass: "standard"  # adjust for your cluster
+    size: 8Gi
+
+  # Retain data for 15 days
+  retention: "15d"
+
+  # Resource limits and requests
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  # Enable service monitor discovery
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    scrapeTimeout: 10s
+    relabelings: []
+    metricRelabelings: []
+
+  # Allow Prometheus to scrape ServiceMonitors from other namespaces
+  serviceMonitorNamespaceSelector:
+    matchNames:
+      - mongo-db   # MongoDB namespace
+      - monitoring # You can add more if needed
+
+  # Enable lifecycle admin API
+  extraArgs:
+    - --web.enable-lifecycle
+    - --web.enable-admin-api
+
+kubeStateMetrics:
+  enabled: true
+
+prometheus-node-exporter:
+  enabled: true
+
+# RBAC and ServiceAccount
+rbac:
+  create: true
+
+serviceAccounts:
+  server:
+    create: true
+    name: prometheus
+
+# Enable Prometheus rules if needed
+rules:
+  enabled: true

@@ -1,0 +1,6 @@
+k3d cluster create patroni-cluster \
+  --agents 2 --servers 1 \
+  --port "5432:30000@loadbalancer" \
+  --port "9090:9090@loadbalancer"
+
+  

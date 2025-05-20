@@ -1,0 +1,44 @@
+shards:
+  count: 2
+  dataNode:
+    replicaCount: 2
+    image:
+      registry: docker.io
+      repository: bitnami/mongodb-sharded
+      tag: latest  # ✅ stable and supports multi-arch
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: "standard"
+
+configsvr:
+  replicaCount: 3
+  image:
+    registry: docker.io
+    repository: bitnami/mongodb-sharded
+    tag: latest
+  persistence:
+    enabled: true
+    size: 4Gi
+    storageClass: "standard"
+
+mongos:
+  image:
+    registry: docker.io
+    repository: bitnami/mongodb-sharded
+    tag: latest
+  service:
+    type: LoadBalancer
+    port: 27017
+
+auth:
+  enabled: true
+  rootUser: root
+  rootPassword: pass
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+  username: root
+  password: pass
