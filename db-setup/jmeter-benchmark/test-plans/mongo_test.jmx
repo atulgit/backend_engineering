@@ -1,90 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+<jmeterTestPlan version="1.2" properties="5.5.0">
+<TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="MongoDB Workload Example" enabled="true">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="MongoDB Benchmark Test" enabled="true">
-      <stringProp name="TestPlan.comments"></stringProp>
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
-      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
-      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="MONGO_URI" elementType="Argument">
-            <stringProp name="Argument.name">MONGO_URI</stringProp>
-            <stringProp name="Argument.value">mongodb://mongodb:27017</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="DB_NAME" elementType="Argument">
-            <stringProp name="Argument.name">DB_NAME</stringProp>
-            <stringProp name="Argument.value">test</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-        </collectionProp>
+    <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+      <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+      <elementProp name="Threads" elementType="Threads">
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
       </elementProp>
-      <stringProp name="TestPlan.user_define_classpath">/opt/apache-jmeter-5.6.3/lib/ext/mongodb-driver-sync-4.11.1.jar</stringProp>
-    </TestPlan>
-    <hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Mongo Thread Group">
-        <intProp name="ThreadGroup.num_threads">2</intProp>
-        <intProp name="ThreadGroup.ramp_time">1</intProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
-          <stringProp name="LoopController.loops">3</stringProp>
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-        </elementProp>
-      </ThreadGroup>
       <hashTree>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Insert User to MongoDB">
-          <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="script">
-            import com.mongodb.client.MongoClients
-            import org.bson.Document
-
-            log.info("Connecting to MongoDB...")
-
-            def client = MongoClients.create(vars.get(&quot;MONGO_URI&quot;))
-            def database = client.getDatabase(vars.get(&quot;DB_NAME&quot;))
-            def collection = database.getCollection(&quot;users&quot;)
-
-            log.info("Inserting document into MongoDB...")
-
-            def doc = new Document(&quot;name&quot;, &quot;Atul&quot;)
-              .append(&quot;email&quot;, &quot;atul@example.com&quot;)
-              .append(&quot;created_at&quot;, new Date())
-            collection.insertOne(doc)
-
-            log.info("Insert completed.")
-
-            client.close()
-          </stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="cacheKey">false</stringProp>
-        </JSR223Sampler>
-        <hashTree/>
-        <!-- <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Find Users from MongoDB">
-          <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="script">
-            import com.mongodb.client.MongoClients
-            import org.bson.Document
-
-            def client = MongoClients.create(vars.get(&quot;MONGO_URI&quot;))
-            def database = client.getDatabase(vars.get(&quot;DB_NAME&quot;))
-            def collection = database.getCollection(&quot;users&quot;)
-
-            def cursor = collection.find().iterator()
-            while (cursor.hasNext()) {
-              log.info(cursor.next().toJson())
-            }
-
-            client.close()
-          </stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="cacheKey">false</stringProp>
-        </JSR223Sampler> -->
-        <!-- <hashTree/> -->
+        <MongoDBConfig guiclass="MongoDBConfigGui" testclass="MongoDBConfig" testname="MongoDB Config" enabled="true">
+          <stringProp name="MongoDBConfig.uri">mongodb://mongodb:27017</stringProp>
+          <stringProp name="MongoDBConfig.database">test</stringProp>
+          <stringProp name="MongoDBConfig.collection">users</stringProp>
+        </MongoDBConfig>
+        <hashTree>
+          <MongoDBSampler guiclass="MongoDBSamplerGui" testclass="MongoDBSampler" testname="Insert Operation" enabled="true">
+            <stringProp name="MongoDBSampler.operation">Insert</stringProp>
+            <stringProp name="MongoDBSampler.collection">users</stringProp>
+            <stringProp name="MongoDBSampler.document">{"name": "John Doe", "age": 30, "city": "New York"}</stringProp>
+          </MongoDBSampler>
+          <hashTree/>
+          <MongoDBSampler guiclass="MongoDBSamplerGui" testclass="MongoDBSampler" testname="Find Operation" enabled="true">
+            <stringProp name="MongoDBSampler.operation">Find</stringProp>
+            <stringProp name="MongoDBSampler.collection">test_collection</stringProp>
+            <stringProp name="MongoDBSampler.query">{"name": "John Doe"}</stringProp>
+          </MongoDBSampler>
+          <hashTree/>
+          <MongoDBSampler guiclass="MongoDBSamplerGui" testclass="MongoDBSampler" testname="Update Operation" enabled="true">
+            <stringProp name="MongoDBSampler.operation">Update</stringProp>
+            <stringProp name="MongoDBSampler.collection">test_collection</stringProp>
+            <stringProp name="MongoDBSampler.query">{"name": "John Doe"}</stringProp>
+            <stringProp name="MongoDBSampler.update">{"$set": {"city": "San Francisco"}}</stringProp>
+          </MongoDBSampler>
+          <hashTree/>
+          <MongoDBSampler guiclass="MongoDBSamplerGui" testclass="MongoDBSampler" testname="Delete Operation" enabled="true">
+            <stringProp name="MongoDBSampler.operation">Delete</stringProp>
+            <stringProp name="MongoDBSampler.collection">test_collection</stringProp>
+            <stringProp name="MongoDBSampler.query">{"name": "John Doe"}</stringProp>
+          </MongoDBSampler>
+          <hashTree/>
+        </hashTree>
       </hashTree>
-    </hashTree>
+    </ThreadGroup>
   </hashTree>
+</TestPlan>
 </jmeterTestPlan>

@@ -19,7 +19,7 @@ CREATE TABLE categories (
 CREATE TABLE inventory_master (
     inventory_id UUID PRIMARY KEY,
     product_id UUID,
-    warehouse_id UUID REFERENCES warehouses(warehouse_id),
+    warehouse_id UUID,
     quantity INT NOT NULL,
     reserved_quantity INT DEFAULT 0,
     restock_threshold INT,

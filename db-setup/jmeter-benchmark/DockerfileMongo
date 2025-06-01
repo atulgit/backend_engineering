@@ -6,9 +6,9 @@ USER root
 RUN apk add --no-cache curl unzip
 
 # Download MongoDB Java driver jars
-RUN curl -L https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/5.5.0/mongodb-driver-sync-5.5.0.jar -o /opt/apache-jmeter-5.6.3/lib/ext/mongodb-driver-sync-4.11.1.jar && \
-    curl -L https://repo1.maven.org/maven2/org/mongodb/bson/5.5.0/bson-5.5.0.jar -o /opt/apache-jmeter-5.6.3/lib/ext/bson-4.11.1.jar && \
-    curl -L https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-core/5.5.0/mongodb-driver-core-5.5.0.jar -o /opt/apache-jmeter-5.6.3/lib/ext/mongodb-driver-core-4.11.1.jar
+RUN curl -L https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/5.5.0/mongodb-driver-sync-5.5.0.jar -o /opt/apache-jmeter-5.6.3/lib/ext/mongodb-driver-sync-5.5.0.jar && \
+    curl -L https://repo1.maven.org/maven2/org/mongodb/bson/5.5.0/bson-5.5.0.jar -o /opt/apache-jmeter-5.6.3/lib/ext/bson-5.5.0.jar && \
+    curl -L https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-core/5.5.0/mongodb-driver-core-5.5.0.jar -o /opt/apache-jmeter-5.6.3/lib/ext/mongodb-driver-core-5.5.0.jar
 
 # USER jmeter
 
@@ -18,3 +18,8 @@ RUN curl -L https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/5.5.0
 # ADD curl -L https://github.com/jolestar/jmeter-mongodb-plugin/raw/mvn-repo/com/jolestar/jmeter-mongodb-plugin/0.4/jmeter-mongodb-plugin-0.4.jar -o /opt/apache-jmeter-5.6.3/lib/ext/ 
 
 # COPY ./test-plans /test-plans
+
+
+# curl -L https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/5.5.0/mongodb-driver-sync-5.5.0.jar -o mongodb-driver-sync-4.3.1.jar
+# curl -L https://repo1.maven.org/maven2/org/mongodb/bson/2.14.3/bson-2.14.3.jar -o bson-2.14.3.jar
+# curl -L https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-core/5.5.0/mongodb-driver-core-5.5.0.jar -o mongodb-driver-core-4.3.1.jar

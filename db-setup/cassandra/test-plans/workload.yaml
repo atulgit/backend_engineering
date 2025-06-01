@@ -1,0 +1,26 @@
+scenarios:
+  default:
+    insert: run driver=cql tags==phase:insert
+
+bindings:
+  available_quantity: ToInt(30)
+  reserved_quantity: ToInt(10)
+  sku: Combinations('0-9A-F;0-9;A-Z;_;p;r;o;')
+  warehouse_id: ToUUID()  # Manually generated UUID for testing
+
+ops:
+  - name: insert
+    tags:
+      phase: insert
+    stmt: >
+      INSERT INTO inventory.inventory_by_sku_warehouse (available_quantity, reserved_quantity, sku, warehouse_id) 
+      VALUES ({available_quantity}, {reserved_quantity}, {sku}, {warehouse_id});
+    log: debug  # Enable debug logging to check the generated id
+
+  - name: select
+    tags:
+      phase: select
+    stmt: >
+      SELECT sku, available_quantity, reserved_quantity
+      FROM inventory.inventory_by_sku_warehouse;
+    log: debug  # Enable debug logging to check the generated id

@@ -19,24 +19,50 @@ services:
       - backend
 
   postgres:
-    image: postgres:16
+    image: postgres
     container_name: postgres
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: app_db
+      POSTGRES_DB: warehouses
+    # volumes:
+    #   - pg_data:/var/lib/postgresql/data
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgres/pgbackrest_conf/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     ports:
       - "5432:5432"
     networks:
       - backend
 
-  mongo:
-    image: mongo
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    networks:
-      - backend
+  # mongodb:
+  #   image: percona/percona-server-mongodb:6.0
+  #   container_name: mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   command: mongod --replSet rs0 --auth --keyFile /etc/mongo-keyfile
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: admin
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #     - ./mongo/secrets/mongodb-keyfile:/etc/mongo-keyfile:ro
+  #   networks:
+  #     - backend
+
+  # pbm-agent:
+  #   image: percona/percona-backup-mongodb:2.3.0
+  #   container_name: pbm-agent
+  #   depends_on:
+  #     - mongodb
+  #   environment:
+  #     PBM_MONGODB_URI: "mongodb://root:admin@mongodb:27017/?authSource=admin"
+  #   volumes:
+  #     - ./mongo/pbm.yaml:/etc/pbm-config.yaml
+  #     - pbm_backup:/backup
+  #   networks:
+  #     - backend
 
   # EXPORTERS
 
@@ -70,7 +96,7 @@ services:
     ports:
       - "9216:9216"
     depends_on:
-      - mongo
+      - mongodb
     networks:
       - backend
 
@@ -117,7 +143,7 @@ services:
     environment:
       - PATH=/opt/nb5:$PATH
     volumes:
-      - ./test-plans:/test-plans
+      - ./cassandra/test-plans:/test-plans
     entrypoint: [ "tail", "-f", "/dev/null" ] # Keep container running so you can exec into it
     depends_on:
       - cassandra
@@ -143,13 +169,87 @@ services:
     tty: true
     volumes:
       - ./jmeter-benchmark/test-plans:/test-plans
+    working_dir: /jmeter
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "/opt/apache-jmeter-5.6.3/bin/jmeter -n -t /test-plans/mongo_test.jmx -l /test-plans/mongo_results.jtl"
     # entrypoint: ["/bin/bash", "-c", "jmeter -n -t /test-plans/test.jmx && tail -f /dev/null"]
     # entrypoint: ["/bin/bash"]
-    entrypoint: [ "jmeter", "-n", "-t", "/test-plans/mongo_test.jmx", "-l", "/test-plans/mongo_results.jtl" ]
+    # entrypoint: [ "jmeter", "-n", "-t", "/test-plans/mongo_test.jmx", "-l", "/test-plans/mongo_results.jtl" ]
     networks:
       - backend
     depends_on:
-      - mongo
+      - mongodb
+
+  pgbackrest:
+    image: woblerr/pgbackrest # Use the same base image for pgBackRest to ensure binary compatibility
+    container_name: pg_backrest
+    command: tail -f /dev/null # <--- THIS IS THE KEY CHANGE!
+    volumes:
+      - pg_data:/var/lib/postgresql/data:ro
+      - pg_backrest_repo:/var/lib/pgbackrest # pgBackRest repository
+      - ./postgres/pgbackrest_conf:/etc/pgbackrest  # pgBackRest configuration files
+    environment:
+      PGBACKREST_STANZA: main
+      PGBACKREST_DB_PATH: /var/lib/postgresql/data
+      PGBACKREST_CONFIG: /etc/pgbackrest/pgbackrest.conf
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: user              # Optional but good to include
+      PGPASSWORD: password
+      # If your pgBackRest repository is on a network share, you might need to add PGBACKREST_REPO_PATH
+    networks:
+      - backend
+    depends_on:
+      - postgres
+
+  # pbm-agent:
+  #   image: perconalab/percona-backup-mongodb:2
+  #   container_name: pbm-agent
+  #   depends_on:
+  #     - mongo
+  #     - minio
+  #   environment:
+  #     PBM_MONGODB_URI: mongodb://mongo:27017/?replicaSet=rs0
+  #     AWS_ACCESS_KEY_ID: minioadmin
+  #     AWS_SECRET_ACCESS_KEY: minioadmin
+  #   volumes:
+  #     - ./mongo/pbm.yaml:/etc/pbm/pbm.yaml
+  #   networks:
+  #     - backend
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9002:9000"  # API
+      - "9001:9001"  # Web UI
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    networks:
+      - backend
+
+
+  # pgbackrest:
+  #   image: woblerr/pgbackrest
+  #   container_name: pgbackrest
+  #   environment:
+  #     - PGBACKREST_REPO1_PATH=/pgbackrest
+  #     - PGBACKREST_STANZA=main
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data:ro
+  #     - pgbackrest:/pgbackrest
+  #   entrypoint: ["sleep", "infinity"]
+  #   networks:
+  #     - backend
+  #   depends_on:
+  #     - postgres
+
+    # This container runs idle; use `docker exec` to trigger backup commands
 
   # ycsb:
   #   image: nuodb/ycsb
@@ -163,6 +263,121 @@ services:
   #   stdin_open: true
   #   tty: true
 
+# volumes:
+#   pgdata:
+#   pgbackrest:
+
+  # mongodb:
+  #   image: percona/percona-server-mongodb:latest # You can choose your desired MongoDB version
+  #   container_name: mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #     - ./mongo/mongod.conf:/etc/mongo/mongod.conf # Optional: Custom mongod.conf
+  #     - ./mongo/mongodb.key:/etc/mongo/mongodb.key # <--- Add this line
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: user
+  #     MONGO_INITDB_ROOT_PASSWORD: password # CHANGE THIS TO A STRONG PASSWORD
+  #   command: mongod --config /etc/mongo/mongod.conf --replSet rs0 --bind_ip_all # Enable replication for PBM
+  #   restart: always
+  #   networks:
+  #     - backend
+
+  # pbm-agent:
+  #   image: percona/percona-backup-mongodb:latest # Use the latest stable PBM Agent version
+  #   container_name: pbm-agent
+  #   volumes:
+  #     - pbm_data:/etc/pbm # Persistent storage for PBM config and logs
+  #     - ./mongo:/data/db # Mount MongoDB data directory for snapshot backups
+  #     - ./mongo/pbm.yaml:/etc/pbm/pbm.yaml # PBM configuration file
+  #   environment:
+  #     PBM_AGENT_MONGODB_URI: "mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0" # Connect to MongoDB
+  #     PBM_AGENT_S3_REGION: "us-east-1" # Your S3 region
+  #     PBM_AGENT_S3_ENDPOINT_URL: "https://s3.amazonaws.com" # Your S3 endpoint (e.g., for MinIO, change this)
+  #     PBM_AGENT_S3_ACCESS_KEY_ID: "YOUR_S3_ACCESS_KEY_ID" # CHANGE THIS
+  #     PBM_AGENT_S3_SECRET_ACCESS_KEY: "YOUR_S3_SECRET_ACCESS_KEY" # CHANGE THIS
+  #     PBM_AGENT_S3_BUCKET: "your-pbm-backup-bucket" # CHANGE THIS
+  #   depends_on:
+  #     - mongodb
+  #   command: pbm-agent # Start the PBM agent
+  #   restart: always
+  #   networks:
+  #     - backend
+
+  # pbm-cli:
+  #   image: percona/percona-backup-mongodb:latest # Use the same PBM Agent version
+  #   container_name: pbm-cli
+  #   command: "tail -f /dev/null" # Keep the container running for manual CLI commands
+  #   environment:
+  #     PBM_AGENT_MONGODB_URI: "mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0"
+  #     PBM_AGENT_S3_REGION: "us-east-1"
+  #     PBM_AGENT_S3_ENDPOINT_URL: "https://s3.amazonaws.com"
+  #     PBM_AGENT_S3_ACCESS_KEY_ID: "YOUR_S3_ACCESS_KEY_ID"
+  #     PBM_AGENT_S3_SECRET_ACCESS_KEY: "YOUR_S3_SECRET_ACCESS_KEY"
+  #     PBM_AGENT_S3_BUCKET: "your-pbm-backup-bucket"
+  #   depends_on:
+  #     - mongodb
+  #     - pbm-agent
+  #   networks:
+  #     - backend
+
+  mongodb:
+    image: percona/percona-server-mongodb:6.0
+    container_name: percona-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    command: 
+      - mongod
+      - --replSet=rs0
+      - --auth
+      - --keyFile=/data/secrets/mongodb-keyfile
+    volumes:
+      - percona-mongo-data:/data/db
+      # - ./mongo/pbm-config:/pbm  # mounting pbm config and credentials
+      - ./mongo/secrets:/data/secrets:ro
+    networks:
+      - backend
+
+  pbm-agent:
+    image: percona/percona-backup-mongodb:latest
+    container_name: pbm-agent
+    depends_on:
+      - mongodb
+    environment:
+      PBM_MONGODB_URI: mongodb://root:password@percona-mongodb:27017/admin
+    volumes:
+      - ./mongo/backups:/pbm/backups
+      - ./mongo/pbm.yaml:/pbm/pbm.yaml
+    restart: unless-stopped
+    networks:
+      - backend
+
+  pbm-cli:
+    image: percona/percona-backup-mongodb:latest
+    container_name: pbm-cli
+    depends_on:
+      - mongodb
+    entrypoint: tail -f /dev/null  # keep it alive for exec into it
+    volumes:
+      - ./mongo/backups:/pbm/backups
+      # - ./mongo/pbm.yaml:/pbm/pbm.yaml
+    networks:
+      - backend
+
+volumes:
+  pg_data:
+  pg_backrest_repo:
+  minio_data:
+  # mongodb_data:
+  # pbm_backup:
+  mongodb_data:
+  pbm_data:
+  percona-mongo-data:
 
 networks:
   backend:

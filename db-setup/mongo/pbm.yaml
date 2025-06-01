@@ -1,0 +1,47 @@
+# pbm.yaml
+storage:
+  type: filesystem
+  filesystem:
+    path: /pbm/backups
+
+mongodb:
+  uri: mongodb://root:password@percona-mongodb:27017/admin
+
+
+
+# storage:
+#   type: filesystem
+#   filesystem:
+#     path: /data/local_backups
+
+# compression:
+#   algorithm: zstd
+
+
+
+# storage:
+#   type: s3
+#   s3:
+#     bucket: "your-pbm-backup-bucket" # CHANGE THIS
+#     region: "us-east-1" # CHANGE THIS
+#     endpointUrl: "https://s3.amazonaws.com" # CHANGE THIS (e.g., for MinIO: http://minio:9000)
+#     credentials:
+#       accessKeyId: "YOUR_S3_ACCESS_KEY_ID" # CHANGE THIS
+#       secretAccessKey: "YOUR_S3_SECRET_ACCESS_KEY" # CHANGE THIS
+
+# storage:
+#   type: s3
+#   s3:
+#     region: local
+#     endpointUrl: http://minio:9000
+#     bucket: mongo
+#     prefix: mongodb
+#     credentials:
+#       access-key-id: minioadmin
+#       secret-access-key: minioadmin
+
+# pitr:
+#   enabled: true
+#   oplogOnly: false
+#   compression: gzip
+#   compressionLevel: 6

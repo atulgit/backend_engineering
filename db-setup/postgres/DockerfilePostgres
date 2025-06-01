@@ -1,0 +1,8 @@
+# Dockerfile
+FROM postgres:16
+
+RUN apt-get update && \
+    apt-get install -y pgbackrest && \
+    rm -rf /var/lib/apt/lists/*
+
+# Optional: Copy your postgresql.conf or scripts here if needed

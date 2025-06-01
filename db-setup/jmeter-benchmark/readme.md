@@ -18,3 +18,5 @@ docker logs <your-jmeter-container>
 docker exec -it <your-jmeter-container> ls /opt/apache-jmeter-5.6.3/lib/ext
 
 docker run -it --entrypoint /bin/bash <image-name>
+
+docker exec -it [container-id] bash
