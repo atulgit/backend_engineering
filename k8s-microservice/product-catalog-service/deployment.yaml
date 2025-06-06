@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-catalog-service
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-catalog-service
+  template:
+    metadata:
+      labels:
+        app: product-catalog-service
+    spec:
+      containers:
+        - name: product-catalog-service
+          image: product-catalog-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3002
+          env:
+            - name: DB_HOST
+              value: host.docker.internal
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "user"
+            - name: DB_PASSWORD
+              value: "password"
+            - name: DB_NAME
+              value: "warehouse_db"

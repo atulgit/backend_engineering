@@ -369,6 +369,24 @@ services:
     networks:
       - backend
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+      - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - backend
+
 volumes:
   pg_data:
   pg_backrest_repo:
@@ -378,6 +396,7 @@ volumes:
   mongodb_data:
   pbm_data:
   percona-mongo-data:
+  esdata:
 
 networks:
   backend:

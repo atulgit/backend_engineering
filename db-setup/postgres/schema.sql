@@ -17,15 +17,13 @@ CREATE TABLE categories (
 
 -- INVENTORY MASTER
 CREATE TABLE inventory_master (
-    inventory_id UUID PRIMARY KEY,
-    product_id UUID,
-    warehouse_id UUID,
-    quantity INT NOT NULL,
-    reserved_quantity INT DEFAULT 0,
-    restock_threshold INT,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (product_id, warehouse_id)
+  sku TEXT NOT NULL,
+  warehouse_id UUID NOT NULL,
+  quantity INTEGER NOT NULL DEFAULT 0,
+  last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (sku, warehouse_id)
 );
+
 
 -- SUPPLIERS
 CREATE TABLE suppliers (
