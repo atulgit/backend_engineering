@@ -23,9 +23,17 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      # KAFKA_BROKER_ID: 1
+      # KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:29092,PLAINTEXT_HOST://localhost:9092
+      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      # KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
       # KAFKA_BROKER_ID: 1
       # KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       # KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9092
@@ -39,27 +47,6 @@ services:
     volumes:
       - kafka1_data:/var/lib/kafka/data
 
-  # kafka2:
-  #   image: confluentinc/cp-kafka:7.6.0
-  #   hostname: kafka2
-  #   container_name: kafka2
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - "9093:9093"
-  #     - "29093:29093"
-  #   environment:
-  #     KAFKA_BROKER_ID: 2
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29093
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9093,PLAINTEXT_HOST://localhost:29093
-  #     # KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29093
-  #     # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9093,PLAINTEXT_HOST://localhost:29093
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-  #   volumes:
-  #     - kafka2_data:/var/lib/kafka/data
-
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
@@ -70,7 +57,7 @@ services:
       # - kafka2
     environment:
       - KAFKA_CLUSTERS_0_NAME=staging-cluster
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:29092
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092
       # - KAFKA_CLUSTERS_0_NAME=staging-cluster
       # - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092,kafka2:9093
       # - KAFKA_CLUSTERS_1_NAME=production-cluster

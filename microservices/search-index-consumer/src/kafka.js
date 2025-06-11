@@ -1,10 +1,16 @@
 import { Kafka } from 'kafkajs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '../.env') });
+// dotenv.config();
 
 const kafka = new Kafka({
-  clientId: 'search-index-consumer',
-  brokers: [process.env.KAFKA_BROKER],
+  clientId: 'inventoryapp',
+  brokers: ["localhost:29092"],
 });
 
 export const consumer = kafka.consumer({ groupId: 'search-index-group' });

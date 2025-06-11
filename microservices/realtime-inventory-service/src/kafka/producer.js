@@ -16,7 +16,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const kafkaConfig = {
   clientId: "inventoryapp",
-  brokers: ["localhost:9092"],
+  brokers: ["localhost:29092"],
 };
 
 const kafka = new Kafka(kafkaConfig);
@@ -27,6 +27,6 @@ await producer.connect();
 export const produceInventoryEvent = async (event) => {
   await producer.send({
     topic: process.env.KAFKA_TOPIC,
-    messages: [{ value: "first_value" }],
+    messages: [{ value: JSON.stringify(event) }],
   });
 };
